@@ -64,11 +64,20 @@
     $.get("./templates/" + templateFile, function (ltemplate) {
       const resourceUrl = window.location.search.split('url=')[1];
       console.log("Resource URL: ", resourceUrl);
+
+  // Fetch the config.json file
+  $.getJSON("../config.json", function(config) {
+    // Extract the postUrl from the config.json file
+    var baseurl = config.server_url;
+    var postUrl = baseurl + '/Bundle/$validate';
+  
+    console.log("POST URL from config: ", postUrl);
+
       $.getJSON(resourceUrl, function (getResponse) {
         console.log("GET Response: ", getResponse);
         //console.log(baseUrl)
         // The data from the GET request is stored in 'getResponse'
-        var postUrl = 'http://localhost:8080/fhir/Bundle/$validate'; // Set your POST request URL here
+        
 
         // Make the POST request using the data from the GET request
         $.ajax({
@@ -93,6 +102,7 @@
         });
       });
     });
+  });
   </script>
 </body>
 
