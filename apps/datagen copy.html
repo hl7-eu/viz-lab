@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/fonts/font-awesome.min.css">
+    <link rel="stylesheet" href="assets/css/styles.min.css">
+    <link rel="stylesheet" href="assets/css/common.css">
+    <link rel="icon" href="favicon.png" sizes="32x32" />  
+</head>
+<body>
+
+  <style>
+    .tab-content > .tab-pane {
+        transition-duration: 0.05s; /* Adjust this value to your preference */
+    }
+    .tab-content > .tab-pane {
+          background-color: #f7f7f7; /* Adjust this color to your preference */
+          border: 1px solid #e0e0e0; /* Optional: adds a light border around the content */
+          border-radius: 4px; /* Optional: rounds the corners of the content */
+          padding: 15px; /* Adjust padding if necessary */
+          height: 200px;
+      }
+
+      textarea {
+            width: 100%; /* Full width */
+            resize: both; /* Allow resizing both horizontally and vertically */
+            font-family: monospace; /* Monospaced font */
+            box-sizing: border-box; /* Include padding and border in the element's total width and height */
+        }
+
+        /* Style adjustments for labels to make them display as block elements */
+        label {
+            display: block;
+            margin-top: 1em; /* Add some space above labels */
+        }
+
+  </style>
+  
+  
+  <header>
+    <nav class="navbar navbar-light navbar-expand-md bg-light py-3">
+        <div class="container custom-container">
+            <div class="row align-items-center custom-row">
+                <!-- Left Column -->
+                <div class="col-md-4 text-start">
+                    <a class="navbar-brand" href="#">
+                        <span class="bs-icon-sm bs-icon-rounded bs-icon-primary d-flex justify-content-center align-items-center me-2 bs-icon" style="height: 47px;width: 47px;">
+                            <i class="fa fa-list-ul" style="font-size: 32px;"></i>
+                        </span>
+                    </a>
+                </div>
+                <!-- Center Column -->
+                <div class="col-md-4 d-flex justify-content-center">
+                    <div class="logo-container">
+                        <img src="logo.jpg" alt="Logo" class="logo-img">
+                    </div>
+                </div>
+                <!-- Right Column -->
+                <div class="col-md-4 text-end">
+                    <button data-bs-toggle="collapse" class="navbar-toggler" data-bs-target="#navcol-5">
+                        <span class="visually-hidden">Toggle navigation</span>
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navcol-5">
+                        <ul class="navbar-nav ms-auto">
+                            <li class="nav-item"><a class="nav-link" href="#" onclick="openManagePage()">Manage...</a></li>
+                        </ul>
+                        <a id="refreshButton" class="btn btn-primary ms-md-2" role="button" href="#">Refresh</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+  <div class="container mt-4">
+    <h2>Data Generation</h2>
+    <a href="template.xlsx" download="dg-template.xlsx">Download Template</a>
+
+
+
+
+
+<label for="csvFileInput">Upload CSV File:</label>
+<input type="file" id="csvFileInput" accept=".csv, .json" multiple>
+<br><br>
+
+    <label for="templateInput">Template:</label>
+    <textarea id="templateInput" rows="15">
+{% for row in patient %}
+Instance: Patient-{{ row.id }}
+InstanceOf: Patient{% set r = random(4)+1 %}
+// this patient has {{r}} names
+* name.given[+] = "{{ row.name }}{% for i in range(0, r ) %} {{ lookup(i, "data.table1") }}{% endfor %}"
+{% endfor %}
+</textarea>
+<br><br>
+
+<button id="uploadButton">Upload and Convert</button>
+
+<h2>Result:</h2>
+<textarea id="resultOutput" rows="10" cols="50"></textarea>
+
+
+</div>
+
+
+<script>
+  nunjucks.configure({ autoescape: true });
+
+  let tables = {}; // Object to hold all tables
+
+  function convertData(templateString, tables) {
+    const myEnv = new nunjucks.Environment();
+
+    myEnv.addGlobal('random', function(max) {
+      return Math.floor(Math.random() * max);
+    });
+
+    myEnv.addGlobal('lookup', function(value, tableName) {
+      const table = tables[tableName];
+      if (!table) {
+        return 'Table NOT FOUND';
+      }
+      // Since your JSON object has keys as strings, no need to find a row.
+      return table.hasOwnProperty(value) ? table[value] : 'NOT FOUND';
+    });
+
+    // Render the template with all the tables data
+    return myEnv.renderString(templateString, { ...tables });
+  }
+
+  function handleFiles(files) {
+    let filesProcessed = 0;
+
+    Array.from(files).forEach(file => {
+      const reader = new FileReader();
+      const fileType = file.name.split('.').pop().toLowerCase(); // Define fileType here
+
+      reader.onload = (event) => {
+        if (fileType === 'json') {
+          // Parse JSON file and store its data
+          const parsedData = JSON.parse(event.target.result);
+          const tableName = file.name.replace(/\.[^/.]+$/, "");
+          tables[tableName] = parsedData;
+          fileProcessedCheck();
+        } else if (fileType === 'csv') {
+          // Parse CSV file and store its data
+          Papa.parse(event.target.result, {
+            header: true,
+            skipEmptyLines: true,
+            complete: function(results) {
+              const tableName = file.name.replace(/\.[^/.]+$/, "");
+              tables[tableName] = results.data;
+              fileProcessedCheck();
+            }
+          });
+        }
+      };
+
+      if (fileType === 'json') {
+        reader.readAsText(file);
+      } else {
+        // Assume CSV if not JSON
+        reader.readAsText(file);
+      }
+    });
+
+    function fileProcessedCheck() {
+      filesProcessed++;
+      if (filesProcessed === files.length) {
+        // All files are processed, now convert the data
+        const templateString = document.getElementById('templateInput').value;
+        if (templateString) {
+          const rendered = convertData(templateString, tables);
+          document.getElementById('resultOutput').value = rendered;
+        }
+      }
+    }
+  }
+
+  document.getElementById('csvFileInput').addEventListener('change', function(evt) {
+    handleFiles(evt.target.files);
+  }, false);
+
+
+  document.getElementById('uploadButton').addEventListener('click', function() {
+    const templateString = document.getElementById('templateInput').value.trim();
+    if (!templateString) {
+      alert('Please enter the template first.');
+      return;
+    }
+    if (Object.keys(tables).length === 0) {
+      alert('Please upload the CSV and JSON files first.');
+      return;
+    }
+    // Convert the data without further uploads
+    console.log("Starting");
+    const rendered = convertData(templateString, tables);
+    console.log(templateString);
+    console.log(tables);
+    console.log(rendered);
+    document.getElementById('resultOutput').value = rendered;
+  });
+  
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.0.3/pako.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.6.0/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/0.5.0/js/sql.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.min.js"></script>
+    <script>
+    </script>
+</body>
+
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

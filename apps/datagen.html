@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Generation</title>
+  <script src="https://cdn.jsdelivr.net/npm/nunjucks@3.2.4/browser/nunjucks.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="assets/fonts/font-awesome.min.css">
+  <link rel="stylesheet" href="assets/css/styles.min.css">
+  <link rel="stylesheet" href="assets/css/common.css">
+
+</head>
+
+<body>
+
+  <style>
+    .tab-content>.tab-pane {
+      transition-duration: 0.05s;
+      /* Adjust this value to your preference */
+    }
+
+    .tab-content>.tab-pane {
+      background-color: #f7f7f7;
+      /* Adjust this color to your preference */
+      border: 1px solid #e0e0e0;
+      /* Optional: adds a light border around the content */
+      border-radius: 4px;
+      /* Optional: rounds the corners of the content */
+      padding: 15px;
+      /* Adjust padding if necessary */
+      height: 200px;
+    }
+
+    textarea {
+      width: 100%;
+      /* Full width */
+      resize: both;
+      /* Allow resizing both horizontally and vertically */
+      font-family: monospace;
+      /* Monospaced font */
+      box-sizing: border-box;
+      /* Include padding and border in the element's total width and height */
+    }
+
+    /* Style adjustments for labels to make them display as block elements */
+    label {
+      display: block;
+      margin-top: 1em;
+      /* Add some space above labels */
+    }
+  </style>
+
+<!--#include virtual="/web/apps/header.html" -->
+
+  <header>
+    <div id="header"></div>
+  </header>
+
+  <div class="container mt-4">
+    <h2>Data Generation</h2>
+    <a href="template.xlsx" download="dg-template.xlsx">Download Template</a>
+
+
+
+
+
+    <label for="csvFileInput">Upload CSV File:</label>
+    <input type="file" id="csvFileInput" accept=".csv, .json" multiple>
+    <br><br>
+
+    <label for="templateInput"></label>
+    <label for="engineSelector">Template:</label>
+    <select id="engineSelector">
+      <option value="nunjucks">Nunjucks</option>
+      <option value="handlebars">Handlebars</option>
+    </select>
+    <br><br>
+
+    <!-- <textarea id="templateInput" rows="15">
+{{#each patient}}
+Instance: Patient-{{id}}
+InstanceOf: Patient
+// this patient has {{random 5}} names
+* name.given[+] = "{{name}} {{#each (makeArray (random 5))}} {{lookup @index 'table1'}}{{/each}}"
+/// TO DO: PERSIST THE RANDOM VARIABLE
+{{/each}}
+    </textarea> -->
+
+    <textarea id="templateInput" rows="15">
+{% for row in patient %}
+Instance: Patient-{{ row.id }}
+InstanceOf: Patient{% set r = random(4)+1 %}
+// this patient has {{r}} names
+* name.given[+] = "{{ row.name }}{% for i in range(0, r ) %} {{ lookup(i, "table1") }}{% endfor %}"
+{% endfor %}
+</textarea>
+
+
+    <br><br>
+
+    <button id="uploadButton">Upload and Convert</button>
+
+    <h2>Result:</h2>
+    <textarea id="resultOutput" rows="10" cols="50"></textarea>
+
+
+  </div>
+
+
+
+
+
+  <script>
+    nunjucks.configure({ autoescape: true });
+
+    let tables = {}; // Object to hold all tables
+
+    function convertData(templateString, tables) {
+      const engine = document.getElementById('engineSelector').value;
+
+      if (engine === 'nunjucks') {
+        // Nunjucks conversion logic...
+        const myEnv = new nunjucks.Environment();
+
+        myEnv.addGlobal('random', function (max) {
+          return Math.floor(Math.random() * max);
+        });
+
+        myEnv.addGlobal('lookup', function (value, tableName) {
+          const table = tables[tableName];
+          if (!table) {
+            return 'Table NOT FOUND';
+          }
+          // Since your JSON object has keys as strings, no need to find a row.
+          return table.hasOwnProperty(value) ? table[value] : 'NOT FOUND';
+        });
+
+        // Render the template with all the tables data
+        return myEnv.renderString(templateString, { ...tables });
+      } else
+        if (engine === 'handlebars') {
+
+          // Handlebars conversion logic...
+          Handlebars.registerHelper('random', function (max) {
+            return Math.floor(Math.random() * max);
+          });
+
+          Handlebars.registerHelper('lookup', function (value, tableName) {
+            const table = tables[tableName];
+            if (!table) {
+              return 'Table NOT FOUND';
+            }
+            // Assuming the table is an object where 'value' is the key.
+            return table.hasOwnProperty(value) ? table[value] : 'NOT FOUND';
+          });
+
+
+          Handlebars.registerHelper('makeArray', function (count, options) {
+            var result = [];
+            for (var i = 0; i < count; i++) {
+              result.push(i);
+            }
+            return result;
+          });
+
+
+          Handlebars.registerHelper('assign', function (varName, varValue, options) {
+            if (!options.data.root[varName]) { // Ensures that the variable does not overwrite existing properties.
+              options.data.root[varName] = varValue;
+            }
+          });
+
+          Handlebars.registerHelper('iterate', function (max, options) {
+            var result = '';
+
+            for (var i = 0; i < max; i++) {
+              // This passes the current number `i` as the context for the block
+              result += options.fn(i);
+            }
+
+            return result;
+          });
+
+          // Compile the Handlebars template
+          const template = Handlebars.compile(templateString);
+          // Execute the compiled template and return the result
+          return template(tables);
+        } else {
+          throw new Error('Unsupported template engine selected');
+        }
+    }
+
+    function handleFiles(files) {
+      let filesProcessed = 0;
+
+      Array.from(files).forEach(file => {
+        const reader = new FileReader();
+        const fileType = file.name.split('.').pop().toLowerCase(); // Define fileType here
+
+        reader.onload = (event) => {
+          if (fileType === 'json') {
+            // Parse JSON file and store its data
+            const parsedData = JSON.parse(event.target.result);
+            const tableName = file.name.replace(/\.[^/.]+$/, "");
+            tables[tableName] = parsedData;
+            fileProcessedCheck();
+          } else if (fileType === 'csv') {
+            // Parse CSV file and store its data
+            Papa.parse(event.target.result, {
+              header: true,
+              skipEmptyLines: true,
+              complete: function (results) {
+                const tableName = file.name.replace(/\.[^/.]+$/, "");
+                tables[tableName] = results.data;
+                fileProcessedCheck();
+              }
+            });
+          }
+        };
+
+        if (fileType === 'json') {
+          reader.readAsText(file);
+        } else {
+          // Assume CSV if not JSON
+          reader.readAsText(file);
+        }
+      });
+
+      function fileProcessedCheck() {
+        filesProcessed++;
+        if (filesProcessed === files.length) {
+          // All files are processed, now convert the data
+          const templateString = document.getElementById('templateInput').value;
+          if (templateString) {
+            const rendered = convertData(templateString, tables);
+            document.getElementById('resultOutput').value = rendered;
+          }
+        }
+      }
+    }
+
+    document.getElementById('csvFileInput').addEventListener('change', function (evt) {
+      handleFiles(evt.target.files);
+    }, false);
+
+
+    document.getElementById('uploadButton').addEventListener('click', function () {
+      const engine = document.getElementById('engineSelector').value;
+      const templateString = document.getElementById('templateInput').value.trim();
+      if (!templateString) {
+        alert('Please enter the template first.');
+        return;
+      }
+      if (Object.keys(tables).length === 0) {
+        alert('Please upload the CSV and JSON files first.');
+        return;
+      }
+      const rendered = convertData(templateString, tables, engine);
+      document.getElementById('resultOutput').value = rendered;
+    });
+
+
+  </script>
+
+  <script>
+    $(function () {
+      // Load the header
+      $("#header").load("header.html", function () {
+        // Once the header is loaded, you can modify it.
+        $("#header-title").text("Main Page Title");
+
+        // You can also dynamically add menu items based on the page.
+        const menu = $("#header-menu");
+        menu.append("<li><a href='/'>Home</a></li>");
+        menu.append("<li><a href='/about'>About Us</a></li>");
+        // ...add other menu items specific to the main page
+      });
+    });
+  </script>
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.0.3/pako.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.6.0/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/0.5.0/js/sql.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.min.js"></script>
+  <script>
+  </script>
+</body>
+
+</html>

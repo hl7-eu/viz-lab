@@ -1,0 +1,69 @@
+        /* Add custom CSS to style the logo and background */
+        .navbar {
+            background-color: white; /* Set the background color to white */
+        }
+
+        .navbar-brand {
+            align-items: center;
+        }
+
+        .logo-img {
+            max-width: 100%;
+            max-height: 77px;
+        }
+
+        /* Adjust the background color of the body or another container as needed */
+        body {
+            background-color: #f7f7f7; /* Change to your desired background color */
+        }
+
+        .custom-container {
+            display: block !important;;
+        }
+
+        .custom-row {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .navbar .btn {
+            background-color: #e1e1e1; /* Subtle gray background */
+            color: #333;               /* Darker text color */
+            padding: 5px 10px;         /* Smaller padding */
+            font-size: 14px;           /* Smaller font size, if desired */
+            border: none;              /* Remove default borders */
+            border-radius: 4px;        /* Optional rounded corners */
+        }
+
+        .navbar .btn:hover {
+            background-color: #c7c7c7; /* Slightly darker on hover */
+            color: #222;               /* Darker text color on hover */
+        }
+
+        .navbar-toggler {
+            padding: 0.25rem 0.5rem;   /* Adjust padding for navbar toggler */
+            font-size: 0.875rem;      /* Adjust font-size for toggler, if desired */
+        }
+
+        /* Adjust the icon color */
+        .bs-icon-sm.bs-icon-rounded.bs-icon-primary i {
+            color: #888;  /* Set to a medium gray color; adjust as needed */
+        }
+
+        /* If you want to change the background or border color of the surrounding span */
+        .bs-icon-sm.bs-icon-rounded.bs-icon-primary {
+            background-color: #e1e1e1;  /* Set to a light gray; adjust as needed */
+            border: 1px solid #c7c7c7;  /* Set a gray border; adjust as needed */
+        }
+        .selectingdiv {
+            display: flex;
+            align-items: center; /* Align vertically */
+            justify-content: flex-start; /* Spacing between elements */
+        }
+        
+        .selectingdiv > div {
+            margin-right: 10px; /* Optional: to add space between text and select box */
+        }
+        .selectingdiv {
+            margin-bottom: 20px; /* Adjust the value as needed */
+        }

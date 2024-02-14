@@ -1,0 +1,14 @@
+@host = http://localhost:8080/fhir
+
+@folder = unicom
+
+### Post fixed StructureMap which is not integrated in the implementation guide 
+GET {{host}}/metadata
+
+
+### Post fixed StructureMap which is not integrated in the implementation guide 
+PUT {{host}}/StructureDefinition/PPLMedicinalProductDefinition HTTP/1.1
+Accept: application/fhir+json;fhirVersion=5.0
+Content-Type: application/fhir+json;fhirVersion=5.0
+
+< ./{{folder}}/StructureDefinition-PPLMedicinalProductDefinition.json

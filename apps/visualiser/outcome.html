@@ -1,0 +1,99 @@
+<html>
+
+<head>
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Validation Outcome v0.1.5</title>
+  <script src="https://code.jquery.com/jquery-3.6.1.min.js"
+    integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js"
+    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/liquidjs/dist/liquid.browser.min.js"></script>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+    crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="./assets/css/styles.css">
+
+</head>
+
+<body>
+  <div id="result" class="container rcorners"></div>
+
+
+  <script type="text/javascript">
+    url = window.location.search.split('url=')[1];
+    //      document.getElementById("preamble").innerHTML = url;
+
+  </script>
+
+  <script type="text/javascript">
+    var templatedata = {}
+    var resourceType = "";
+    var templateQuery = "";
+    var templateFile = "outcome.liquid";
+
+    // Function to clear validation labels
+
+
+    function processResponseData(responseData) {
+      let hasError = false;
+
+      // Check if the responseData has the 'issue' array
+      if (responseData && responseData.issue && Array.isArray(responseData.issue)) {
+        // Iterate through the 'issue' array
+        for (let issue of responseData.issue) {
+          // Check if the severity of the issue is 'error'
+          if (issue.severity === 'error') {
+            console.log(issue.diagnostics);
+            hasError = true;
+            //break; // Break the loop if an error is found
+          }
+        }
+      }
+
+      return responseData;
+    }
+
+
+    const result = document.querySelector('#result')
+    const engine = new liquidjs.Liquid()
+    $.get("./templates/" + templateFile, function (ltemplate) {
+      const resourceUrl = window.location.search.split('url=')[1];
+      console.log("Resource URL: ", resourceUrl);
+      $.getJSON(resourceUrl, function (getResponse) {
+        console.log("GET Response: ", getResponse);
+        //console.log(baseUrl)
+        // The data from the GET request is stored in 'getResponse'
+        var postUrl = 'http://fhir.hl7.pt:8787/fhir/Bundle/$validate'; // Set your POST request URL here
+
+        // Make the POST request using the data from the GET request
+        $.ajax({
+          url: postUrl,
+          type: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify(getResponse),
+          complete: function (xhr, textStatus) {
+            // Check the status code
+            if (xhr.status === 200 || xhr.status === 412) {
+
+              var processedData = processResponseData(xhr.responseJSON);
+
+              // Render the template with the response
+              engine.parseAndRender(ltemplate, processedData)
+                .then(html => result.innerHTML = html);
+            } else {
+              // Handle other status codes or errors
+              console.log("Error in POST Request: Status Code ", xhr.status);
+            }
+          }
+        });
+      });
+    });
+  </script>
+</body>
+
+</html>

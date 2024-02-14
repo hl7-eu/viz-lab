@@ -1,0 +1,116 @@
+{% comment %}GET all MPDs from the Bundle - the resource inside each entry{% endcomment %}
+{% assign compr = entry | where: "resource.resourceType", "Composition" | first %}
+{% assign comp = compr.resource %}
+
+  <div class="container rcorners mpd">
+  {% comment %}print the name - current name[0], should be all names{% endcomment %}
+  <h4 class="mytitleheader">
+    {{ comp.title }} ({{ comp.status | upcase }})
+  </h4>
+
+
+  <div class="colcontainer">
+  <div class="column">{% comment %}and name parts{% endcomment %}
+    <p>Author: <b>{{ comp.author[0].display }}</b></p>
+  
+    {% comment %}and name parts{% endcomment %}
+    <p>Date: <b>{{ comp.date}}</b></p> 
+  
+    <p>Confidentiality: <b>{{ comp.confidentiality}}</b></p> </div>
+
+  {% comment %}Get all RAs (RegAuthorization) from the Bundle{% endcomment %}
+  {% assign patr = entry | where: "resource.resourceType", "Patient" | first %}
+  {% assign pat = patr.resource %}
+
+<div class="column">{% comment %}and name parts{% endcomment %}
+
+<div style="font-size: smaller">
+  {% for pid in pat.identifier %}
+    {{ pid.system | split: '/' | last | upcase }}:
+    <b>
+      {{ pid.value }}
+    </b>
+    </br>
+  {% endfor %}
+  </div>
+  <hr>
+
+  {% comment %}and name parts{% endcomment %}
+  <p>Name: <b>{{ pat.name[0].given[0] }} {{pat.name[0].family}}</b></p>
+  <p>Birth Date: <b>{{ pat.birthDate}}</b></p>
+
+  
+  </div>
+  </div>
+</div>
+
+<div class="apd container rcorners">
+  <h4> Results</h4>
+
+  {% for sec in comp.section %}
+    <p><b>{{ sec.title}}</b></p>
+    <p style="font-size: 12px">{{sec.code.coding[0].display}} </p>
+    {% for ent in sec.entry %}
+
+      {% assign entr = entry | where: "fullUrl", ent.reference | first %}
+
+{{ if entr.resource.resourceType == "Observation" }}
+  {% include './templates/obs.liquid' with entr: entr  %}
+
+    {% endfor %}
+     <div>
+
+     {% if entr.resource.hasMember %}
+      {% for memb in entr.resource.hasMember %}
+
+      {% assign subentr = entry | where: "fullUrl", memb.reference | first %}
+      
+       {% include './templates/obs1.liquid' with subentr %}
+      
+          {% endfor %}
+
+
+    {% endif %}
+
+     </div>
+
+
+
+     {% for subsec in sec.section %}
+      <div class="mid container rcorners">
+        <p>{{subsec.title}}</p> 
+      
+        <p style="font-size: 12px">{{subsec.code.coding[0].display}} </p>
+        {% for ent in subsec.entry %}
+        
+    {% assign entr = entry | where: "fullUrl", ent.reference | first %}
+    
+    {{ if entr.resource.resourceType == "Observation" }}
+      {% include './templates/obs.liquid' with entr: entr  %}
+    
+        {% endfor %}
+
+      <div>
+ 
+      {% if entr.resource.hasMember %}
+       {% for memb in entr.resource.hasMember %}
+ 
+       {% assign subentr = entry | where: "fullUrl", memb.reference | first %}
+       
+        {% include './templates/obs1.liquid' with subentr %}
+       
+           {% endfor %}
+ 
+ 
+     {% endif %}
+ 
+      </div>
+        
+      </div>
+
+     {% endfor %}
+
+     </div>
+
+  {% endfor %}
+  </div>

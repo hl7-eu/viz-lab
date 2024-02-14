@@ -1,0 +1,35 @@
+<div class="container m-1 p-1 rcorners miding listcontainer">
+          <p>
+            Category:
+            <b>
+              {{ entr.resource.category[0].coding[0].code }}
+            </b>
+          </p>
+
+          <p>
+            Code:
+            <b>
+              {{ entr.resource.code.text }}
+            </b>
+          </p>
+         <p>effective Date: <b>{{entr.resource.effectiveDateTime}}</b></p>
+   
+         {% if entr.resource.valueCodeableConcept %}
+
+            <p>Value: <b>{{entr.resource.valueCodeableConcept.coding[0].display}}</b>
+            {% if entr.resource.interpretation %}
+                <span style="font-size: 14px"> ({{entr.resource.interpretation[0].coding[0].display}}) </span>
+            {% endif %}
+            </p>
+
+            {% endif %}
+
+
+            {% if entr.resource.valueQuantity %}
+            <p>Value: <b>{{entr.resource.valueQuantity.value}} {{entr.resource.valueQuantity.unit}}</b>
+            {% if entr.resource.interpretation %}
+                <span style="font-size: 14px"> ({{entr.resource.interpretation[0].coding[0].display}}) </span>
+            {% endif %}
+        {% endif %}
+
+        {% comment %}{% endcomment %}

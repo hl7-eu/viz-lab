@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Laboratory Data Browser</title>
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <!-- <link rel="manifest" href="manifest.json"> -->
+    <link rel="stylesheet" href="assets/fonts/font-awesome.min.css">
+    <link rel="stylesheet" href="assets/css/styles.min.css">
+    <link rel="stylesheet" href="assets/css/prodlist.css">
+    <link rel="stylesheet" href="assets/css/common.css">
+
+    
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="assets/js/script.min.js"></script>
+    <script src="assets/js/productlist.js"></script>
+    <link rel="icon" href="favicon.png" sizes="32x32" />
+
+</head>
+<header>
+    <div id="header"></div>
+  </header>
+
+
+<body>
+<!--#include virtual="/web/apps/header.html" -->
+
+    <header>
+        <div id="header"></div>
+    </header>
+
+    <!-- Static Modal -->
+    <div id="processingModal"
+        style="display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); text-align: center;">
+        <div
+            style="display: inline-block; position: relative; top: 50%; transform: translateY(-50%); background-color: white; padding: 20px; border-radius: 5px;">
+            <p>Processing data, please wait...</p>
+        </div>
+    </div>
+
+    <div>
+        <!--    <div>-->
+        <!--        <div>-->
+        <!--            <ul class="nav nav-tabs justify-content-end" role="tablist">-->
+        <!--                <li class="nav-item" role="presentation"><a class="nav-link active" href="#tab-1" role="tab" data-bs-toggle="tab">Product Browser</a></li>-->
+        <!--                <li class="nav-item" role="presentation"><a class="nav-link" href="#tab-2" role="tab" data-bs-toggle="tab">Content Management</a></li>-->
+        <!--                <li class="nav-item" role="presentation"><a class="nav-link" href="#tab-3" role="tab" data-bs-toggle="tab">Config</a></li>-->
+        <!--            </ul>-->
+        <!--        </div>-->
+        <!--    </div>-->
+
+        <div id="progressIndicator" style="display: none;"></div>
+        <div class="tab-content" style="background: var(--bs-white);">
+            <div id="tab-1" class="tab-pane active" role="tabpanel">
+                <p style="text-align: center;font-weight: bold;">Laboratory Data Browser<br></p>
+
+       
+
+                <!-- <button id="validate-all-button">Validate All</button> -->
+                <div class="table-responsive" style="padding: 38px;">
+                    <table class="table display" id="prod-table" style="width: 100%">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Viewer</th>
+                                <th>Source</th>
+                                <th>Validation</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="tab-2" class="tab-pane" role="tabpanel">
+                <div>
+                    <p style="font-weight: bold;text-align: center;">Content Management</p>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-2">
+                                <p style="text-align: right;font-weight: bold;">Upload transaction</p>
+                            </div>
+                            <div class="col-5"><input type="file"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="tab-3" class="tab-pane" role="tabpanel">
+                <p>Content for tab 3.<br></p>
+            </div>
+        </div>
+    </div>
+    <ul id="container" class="list-group"></ul>
+    <script>
+        $(document).ready(function () {
+            
+            $('#prod-table').DataTable({
+                // dom: 'lfrtip',
+                iDisplayLength: 50,
+                dom: 'frtlip',
+                pageLength: 100,
+                lengthMenu: [0, 5, 10, 20, 50, 100, 200, 500],
+                columns: [{ width: "15%" }, { width: "17%" }, { width: "7%" }, { width: "10%" }, { width: "10%" }]
+            });
+        });
+    </script>
+
+<script>
+    $(function () {
+      // Load the header
+      $("#header").load("header.html", function () {
+        // Once the header is loaded, you can modify it.
+        $("#header-title").text("Main Page Title");
+
+        // You can also dynamically add menu items based on the page.
+        const menu = $("#header-menu");
+        menu.append("<li><a href='/'>Home</a></li>");
+        menu.append("<li><a href='/about'>About Us</a></li>");
+        // ...add other menu items specific to the main page
+      });
+    });
+  </script>
+
+</body>
+
+</html>

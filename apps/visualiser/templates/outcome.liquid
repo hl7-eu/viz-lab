@@ -1,0 +1,133 @@
+{% comment %}GET all MPDs from the Bundle - the resource inside each entry{% endcomment %}
+
+{% assign errors = issue | where: "severity", "error" %}
+{% assign warnings = issue | where: "severity", "warning" %}
+{% assign informations = issue | where: "severity", "information" %}
+
+
+<!-- Status Div -->
+{% if errors.size > 0 %}
+<div class="container rcorners fail">
+<h3>Validation outcome: Issues Detected</h3>
+</div>
+{% else %}
+<div class="container rcorners pass">
+<h3>Validation outcome: PASS</h3>
+</div>
+{% endif %}
+
+
+
+<div class="accordion" id="accordionValidation">
+  <!-- Details Accordion Item -->
+  <div class="accordion-item">
+    <h2 class="accordion-header" id="headingDetails">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDetails" aria-expanded="false" aria-controls="collapseDetails">
+        Details
+      </button>
+    </h2>
+    <div id="collapseDetails" class="accordion-collapse collapse" aria-labelledby="headingDetails" data-bs-parent="#accordionValidation">
+      <div class="accordion-body">
+
+
+
+        <!-- Nested Accordion for Errors -->
+        {% if errors.size > 0 %}
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingErrorsNested">
+            <button class="accordion-button error collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseErrorsNested" aria-expanded="false" aria-controls="collapseErrorsNested">
+              Errors ({{ errors.size }})
+            </button>
+          </h2>
+          <div id="collapseErrorsNested" class="accordion-collapse collapse" aria-labelledby="headingErrorsNested" data-bs-parent="#collapseDetails">
+            <div class="accordion-body">
+                {% for error in errors %}
+                <div class="container rcorners ra">
+                  Error: <b>{{ error.details.coding[0].code }}</b><br>
+                  {{ error.diagnostics }}<br>
+                  <p><small><i>{{ error.location }}</i></small></p>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+          {% endif %}
+
+
+
+        <!-- Nested Accordion for Warnings -->
+        {% if warnings.size > 0 %}
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingWarningsNested">
+            <button class="accordion-button warning collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseWarningsNested" aria-expanded="false" aria-controls="collapseWarningsNested">
+              Warnings ({{ warnings.size }})
+            </button>
+          </h2>
+          <div id="collapseWarningsNested" class="accordion-collapse collapse" aria-labelledby="headingWarningsNested" data-bs-parent="#collapseDetails">
+            <div class="accordion-body">
+                {% for warning in warnings %}
+                <div class="container rcorners mpd">
+                  Warning: <b>{{ warning.details.coding[0].code }}</b><br>
+                  {{ warning.diagnostics }}<br>
+                  <p><small><i>{{ warning.location }}</i></small></p>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+          {% endif %}
+
+
+
+
+      <!-- Nested Accordion for Informations -->
+      {% if informations.size > 0 %}
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingInformationsNested">
+          <button class="accordion-button information collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseInformationsNested" aria-expanded="false" aria-controls="collapseInformationsNested">
+            Informations ({{ informations.size }})
+          </button>
+        </h2>
+        <div id="collapseInformationsNested" class="accordion-collapse collapse" aria-labelledby="headingInformationsNested" data-bs-parent="#collapseDetails">
+          <div class="accordion-body">
+              {% for information in informations %}
+              <div class="container rcorners ppd">
+                Information: <b>{{ information.details.coding[0].code }}</b><br>
+                {{ information.diagnostics }}<br>
+                  <p><small><i>{{ information.location }}</i></small></p>
+              </div>
+              {% endfor %}
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+
+
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<style>
+  .pass {
+    background-color: green;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    margin-top: 10px;
+    cursor: pointer;
+  }
+  .fail {
+    background-color: red;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    margin-top: 10px;
+    cursor: pointer;
+  }
+  /* Add styles for accordion as needed */
+</style>

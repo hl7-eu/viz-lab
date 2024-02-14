@@ -1,0 +1,4 @@
+{
+    "ig_url": "https://build.fhir.org/ig/hl7-eu/laboratory/", 
+    "server_url": "http://localhost:8080/fhir"
+}
