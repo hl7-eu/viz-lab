@@ -55,24 +55,28 @@
       {% assign entr = entry | where: "fullUrl", ent.reference | first %}
 
 {{ if entr.resource.resourceType == "Observation" }}
-  {% include './templates/obs.liquid' with entr: entr  %}
+<div class="container m-1 p-1 rcorners miding listcontainer">
+
+  {% render './templates/obs.liquid', entr: entr  %}
 
     {% endfor %}
-     <div>
 
      {% if entr.resource.hasMember %}
+      <p>Members:</p>
+
       {% for memb in entr.resource.hasMember %}
 
       {% assign subentr = entry | where: "fullUrl", memb.reference | first %}
-      
-       {% include './templates/obs1.liquid' with subentr %}
-      
-          {% endfor %}
+      <div class="container m-1 p-1 rcorners apding listcontainer">
 
+       {% render './templates/obs.liquid', entr:subentr %}
+       </div>
+
+          {% endfor %}
 
     {% endif %}
 
-     </div>
+    
 
 
 
@@ -82,25 +86,29 @@
       
         <p style="font-size: 12px">{{subsec.code.coding[0].display}} </p>
         {% for ent in subsec.entry %}
-        
+
     {% assign entr = entry | where: "fullUrl", ent.reference | first %}
     
     {{ if entr.resource.resourceType == "Observation" }}
-      {% include './templates/obs.liquid' with entr: entr  %}
+    <div class="container m-1 p-1 rcorners miding listcontainer">
+
+      {% render './templates/obs.liquid', entr: entr  %}
     
         {% endfor %}
 
-      <div>
  
       {% if entr.resource.hasMember %}
+        <p>Members:</p>
        {% for memb in entr.resource.hasMember %}
- 
+        <div class="container m-1 p-1 rcorners apding listcontainer">
+
        {% assign subentr = entry | where: "fullUrl", memb.reference | first %}
        
-        {% include './templates/obs1.liquid' with subentr %}
-       
+        {% render './templates/obs.liquid', entr:subentr %}
+        </div>
+
            {% endfor %}
- 
+
  
      {% endif %}
  
