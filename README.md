@@ -1,7 +1,7 @@
 
 ## Project
-based on [unicom-test-lab](https://github.com/unicom-project-eu/UNICOM-test-lab)
-Usef to play with data from [https://github.com/hl7-eu/laboratory](https://github.com/hl7-eu/laboratory)
+based on [unicom-test-lab](https://github.com/unicom-project-eu/UNICOM-test-lab)  
+Used to play with data from [https://github.com/hl7-eu/laboratory](https://github.com/hl7-eu/laboratory)
 
 ## Reporting Issues
 
