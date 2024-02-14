@@ -37,6 +37,26 @@ services:
       - hapi.fhir.allow_contains_searches=true
       - hapi.fhir.allow_override_default_search_params=true
       - hapi.fhir.cql_enabled=true
+      - hapi.fhir.install_transitive_ig_dependencies=true
+
+      - hapi.fhir.implementationguides.lab.name=hl7.fhir.eu.laboratory
+      - hapi.fhir.implementationguides.lab.version=0.1.0-ci
+      - hapi.fhir.implementationguides.lab.packageUrl=https://build.fhir.org/ig/hl7-eu/laboratory/package.tgz
+      - hapi.fhir.implementationguides.lab.reloadExisting=true
+      - hapi.fhir.implementationguides.lab.installMode=STORE_AND_INSTALL
+
+      - hapi.fhir.implementationguides.euext.name=hl7.fhir.eu.extensions.r4
+      - hapi.fhir.implementationguides.euext.version=0.1.0-ci
+      - hapi.fhir.implementationguides.euext.packageUrl=https://build.fhir.org/ig/hl7-eu/extensions-r4/package.tgz
+      - hapi.fhir.implementationguides.euext.reloadExisting=true
+      - hapi.fhir.implementationguides.euext.installMode=STORE_AND_INSTALL
+
+
+      - hapi.fhir.implementationguides.ips.name=hl7.fhir.uv.ips
+      - hapi.fhir.implementationguides.ips.version=1.0.0
+      - hapi.fhir.implementationguides.ips.reloadExisting=true
+      - hapi.fhir.implementationguides.ips.installMode=STORE_AND_INSTALL
+
       - hapi.fhir.advanced_lucene_indexing=false
       - hapi.fhir.bulk_export_enabled=false
       - hapi.fhir.bulk_import_enabled=false
