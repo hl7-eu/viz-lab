@@ -8,7 +8,11 @@
           <p>
             Code:
             <b>
+              {% if entr.resource.code.text %} 
               {{ entr.resource.code.text }}
+              {% else %}
+              {{ entr.resource.code.coding[0].display }}
+              {% endif %}
             </b>
           </p>
          <p>effective Date: <b>{{entr.resource.effectiveDateTime}}</b></p>
@@ -30,5 +34,22 @@
                 <span style="font-size: 14px"> ({{entr.resource.interpretation[0].coding[0].display}}) </span>
             {% endif %}
         {% endif %}
+
+        {% if entr.resource.specimen %}
+          
+          {% assign spec = entry | where: "fullUrl", entr.resource.specimen.reference | first %}
+          {% if spec.resource.resourceType == "Specimen" %}
+          <p>Specimen Type: <b>{{spec.resource.type.coding[0].display}}</b></p>
+          
+          {% if spec.resource.collection %}
+          <p>Specimen Collection Date: <b>{{spec.resource.collection.collectedDateTime}}</b></p>
+          {% endif %}
+
+          {% endif %}
+
+        {% endif %}
+
+      
+        
 
         {% comment %}{% endcomment %}

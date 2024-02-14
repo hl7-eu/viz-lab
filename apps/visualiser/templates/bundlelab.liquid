@@ -1,7 +1,7 @@
 {% comment %}GET all MPDs from the Bundle - the resource inside each entry{% endcomment %}
 {% assign compr = entry | where: "resource.resourceType", "Composition" | first %}
 {% assign comp = compr.resource %}
-
+<br>
   <div class="container rcorners mpd">
   {% comment %}print the name - current name[0], should be all names{% endcomment %}
   <h4 class="mytitleheader">
@@ -24,22 +24,24 @@
 
 <div class="column">{% comment %}and name parts{% endcomment %}
 
-<div style="font-size: smaller">
-  {% for pid in pat.identifier %}
-    {{ pid.system | split: '/' | last | upcase }}:
-    <b>
-      {{ pid.value }}
-    </b>
-    </br>
-  {% endfor %}
-  </div>
-  <hr>
 
   {% comment %}and name parts{% endcomment %}
   <p>Name: <b>{{ pat.name[0].given[0] }} {{pat.name[0].family}}</b></p>
   <p>Birth Date: <b>{{ pat.birthDate}}</b></p>
-
+<p>Gender: <b>{{pat.gender}}</b></p>
   
+  <hr>
+
+  <div style="font-size: smaller">
+    {% for pid in pat.identifier %}
+      {{ pid.system | split: '/' | last | upcase }}:
+      <b>
+        {{ pid.value }}
+      </b>
+      </br>
+    {% endfor %}
+    </div>
+
   </div>
   </div>
 </div>
@@ -57,7 +59,7 @@
 {{ if entr.resource.resourceType == "Observation" }}
 <div class="container m-1 p-1 rcorners miding listcontainer">
 
-  {% render './templates/obs.liquid', entr: entr  %}
+  {% render './templates/obs.liquid', entr: entr, entry:entry   %}
 
     {% endfor %}
 
@@ -69,7 +71,7 @@
       {% assign subentr = entry | where: "fullUrl", memb.reference | first %}
       <div class="container m-1 p-1 rcorners apding listcontainer">
 
-       {% render './templates/obs.liquid', entr:subentr %}
+       {% render './templates/obs.liquid', entr:subentr, entry:entry  %}
        </div>
 
           {% endfor %}
@@ -92,7 +94,7 @@
     {{ if entr.resource.resourceType == "Observation" }}
     <div class="container m-1 p-1 rcorners miding listcontainer">
 
-      {% render './templates/obs.liquid', entr: entr  %}
+      {% render './templates/obs.liquid', entr: entr , entry:entry  %}
     
         {% endfor %}
 
@@ -104,13 +106,25 @@
 
        {% assign subentr = entry | where: "fullUrl", memb.reference | first %}
        
-        {% render './templates/obs.liquid', entr:subentr %}
-        </div>
+        {% render './templates/obs.liquid', entr:subentr, entry:entry %}
 
-           {% endfor %}
 
- 
-     {% endif %}
+                  {% if subentr.resource.hasMember %}
+                    <p>Members:</p>
+                    {% for submemb in subentr.resource.hasMember %}
+                    {% assign subsubentr = entry | where: "fullUrl", submemb.reference | first %}
+                    <div class="container m-1 p-1 rcorners apd listcontainer">
+                    {% render './templates/obs.liquid', entr:subsubentr, entry:entry  %}
+                    </div>
+
+                    {% endfor %}
+                    {% endif %}
+                    </div>
+
+
+        {% endfor %}
+
+        {% endif %}
  
       </div>
         

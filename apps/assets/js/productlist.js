@@ -267,7 +267,7 @@ for (var j = 0; j < data[i].entry.length; j++) {
 
       current_row.push(
         '<span class="full-validation-link">' +
-        '<a target="_blank" href="./visualiser/outcome.html?url=' + baseurl + '/Bundle/' + bid + '&_format=json">Report</a>' +
+        '<a target="_blank" href="./visualiser/outcome.html?url=' + baseurl + '/Bundle/' + bid + '?_format=json">Report</a>' +
         '</span>'
       );
 

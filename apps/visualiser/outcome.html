@@ -68,7 +68,7 @@
         console.log("GET Response: ", getResponse);
         //console.log(baseUrl)
         // The data from the GET request is stored in 'getResponse'
-        var postUrl = 'http://fhir.hl7.pt:8787/fhir/Bundle/$validate'; // Set your POST request URL here
+        var postUrl = 'http://localhost:8080/fhir/Bundle/$validate'; // Set your POST request URL here
 
         // Make the POST request using the data from the GET request
         $.ajax({
@@ -81,7 +81,7 @@
             if (xhr.status === 200 || xhr.status === 412) {
 
               var processedData = processResponseData(xhr.responseJSON);
-
+              console.log(processedData);
               // Render the template with the response
               engine.parseAndRender(ltemplate, processedData)
                 .then(html => result.innerHTML = html);
