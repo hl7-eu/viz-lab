@@ -2,7 +2,8 @@ version: "3.9"
 
 services:
   fhir-server:
-    image: costateixeira/hapistarter:2.0.0
+    #image: costateixeira/hapistarter:2.0.0
+    image: myhapi
     restart: unless-stopped
     container_name: ${server_name}
     ports:
@@ -40,13 +41,13 @@ services:
       - hapi.fhir.install_transitive_ig_dependencies=true
 
       - hapi.fhir.implementationguides.lab.name=hl7.fhir.eu.laboratory
-      - hapi.fhir.implementationguides.lab.version=0.1.0-ci
+      - hapi.fhir.implementationguides.lab.version=0.1.0
       - hapi.fhir.implementationguides.lab.packageUrl=https://build.fhir.org/ig/hl7-eu/laboratory/package.tgz
       - hapi.fhir.implementationguides.lab.reloadExisting=true
       - hapi.fhir.implementationguides.lab.installMode=STORE_AND_INSTALL
 
       - hapi.fhir.implementationguides.euext.name=hl7.fhir.eu.extensions.r4
-      - hapi.fhir.implementationguides.euext.version=0.1.0-ci
+      - hapi.fhir.implementationguides.euext.version=0.1.0
       - hapi.fhir.implementationguides.euext.packageUrl=https://build.fhir.org/ig/hl7-eu/extensions-r4/package.tgz
       - hapi.fhir.implementationguides.euext.reloadExisting=true
       - hapi.fhir.implementationguides.euext.installMode=STORE_AND_INSTALL
