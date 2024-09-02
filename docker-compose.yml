@@ -3,37 +3,55 @@ version: "3.9"
 services:
   fhir-server:
     #image: costateixeira/hapistarter:2.0.0
-    image: jfcal/myhapi:latest
-    restart: unless-stopped
-    container_name: ${server_name}
+#    image: jfcal/myhapi:latest
+    image: hapiproject/hapi:latest
+#    restart: unless-stopped
+    restart: always
+    container_name: LAB
     ports:
-      - ${server_port:-8080}:8080
-    env_file:
-      - .env
+      - 8282:8080
+   # env_file:
+   #   - .env
 
     environment:
+#      - management.endpoints.web.cors.allowed-origins=* 
+#      - management.endpoints.web.cors.allowed-methods=*
+      - server.servlet.context-path=/laboratory
+      - spring.main.allow-circular-references=true
+      - spring.datasource.url=jdbc:postgresql://db:5432/hapi
+      - spring.datasource.username=admin
+      - spring.datasource.password=admin
+      - spring.datasource.driverClassName=org.postgresql.Driver
+      - spring.flyway.enabled=false
+      - spring.flyway.check-location=false
+      - spring.flywway.baselineOnMigrate=true 
 #      - server.servlet.context-path=
       - hapi.fhir.allow_multiple_delete=true
-      - hapi.fhir.server_address=http://35.193.0.173/laboratory
+      - hapi.fhir.server_address=https://sandbox.hl7europe.eu/laboratory/fhir
       - hapi.fhir.reuse_cached_search_results_millis=10000
       - hapi.fhir.cors.allow_Credentials=true
-      - hapi.fhir.cors.allowed_origin_patterns="http:localhost:*"
-      - hapi.fhir.fhir_version=${fhir_version}
+      - hapi.fhir.cors.allowed_origin_patterns=['*']
+      - spring.web.cors.allow-credentials=true
+      - spring.web.cors.allowed-origins="*"
+      - spring.web.cors.allowed-methods="*"
+      - spring.web.cors.allowed-headers="*"
+      - hapi.fhir.fhir_version=R4
       - hapi.fhir.cr_enabled=true
 
 
 
       - spring.jpa.properties.hibernate.format_sql=false
       - spring.jpa.properties.hibernate.show_sql=false
-      - spring.jpa.properties.hibernate.dialect=ca.uhn.fhir.jpa.model.dialect.HapiFhirH2Dialect
+      - spring.jpa.properties.hibernate.dialect=ca.uhn.fhir.jpa.model.dialect.HapiFhirPostgres94Dialect
       - spring.jpa.properties.hibernate.search.enabled=true
       - spring.jpa.properties.hibernate.search.backend.type=lucene
-#      - spring.jpa.properties.hibernate.search.backend.analysis.configurer=ca.uhn.fhir.jpa.search.HapiHSearchAnalysisConfigurers$$HapiLuceneAnalysisConfigurer
+#    - spring.jpa.properties.hibernate.search.backend.analysis.configurer=ca.uhn.fhir.jpa.search.HapiHSearchAnalysisConfigurers$$HapiLuceneAnalysisConfigurer
       - spring.jpa.properties.hibernate.search.backend.directory.type=local-filesystem
       - spring.jpa.properties.hibernate.search.backend.directory.root=target/lucenefiles
       - spring.jpa.properties.hibernate.search.backend.lucene_version=lucene_current
       - spring.batch.job.enabled=false
       - hapi.fhir.openapi_enabled=true
+      - hapi.fhir.use_apache_address_strategy=true
       - hapi.fhir.use_apache_address_strategy_https=true
       - hapi.fhir.allow_contains_searches=true
       - hapi.fhir.allow_override_default_search_params=true
@@ -41,16 +59,16 @@ services:
       - hapi.fhir.install_transitive_ig_dependencies=true
 
       - hapi.fhir.implementationguides.lab.name=hl7.fhir.eu.laboratory
-      - hapi.fhir.implementationguides.lab.version=0.1.0
+      - hapi.fhir.implementationguides.lab.version=0.2.0-ci
       - hapi.fhir.implementationguides.lab.packageUrl=https://build.fhir.org/ig/hl7-eu/laboratory/package.tgz
       - hapi.fhir.implementationguides.lab.reloadExisting=true
       - hapi.fhir.implementationguides.lab.installMode=STORE_AND_INSTALL
 
-      - hapi.fhir.implementationguides.euext.name=hl7.fhir.eu.extensions.r4
-      - hapi.fhir.implementationguides.euext.version=0.1.0-ci
-      - hapi.fhir.implementationguides.euext.packageUrl=https://build.fhir.org/ig/hl7-eu/extensions-r4/package.tgz
-      - hapi.fhir.implementationguides.euext.reloadExisting=true
-      - hapi.fhir.implementationguides.euext.installMode=STORE_AND_INSTALL
+#      - hapi.fhir.implementationguides.euext.name=hl7.fhir.eu.extensions.r4
+#      - hapi.fhir.implementationguides.euext.version=0.1.0-ci
+#      - hapi.fhir.implementationguides.euext.packageUrl=https://build.fhir.org/ig/hl7-eu/extensions-r4/package.tgz
+#      - hapi.fhir.implementationguides.euext.reloadExisting=true
+#      - hapi.fhir.implementationguides.euext.installMode=STORE_AND_INSTALL
 
 
       - hapi.fhir.implementationguides.ips.name=hl7.fhir.uv.ips
@@ -68,9 +86,29 @@ services:
       - hapi.fhir.custom_content_path=/custom
       - hapi.fhir.app_content_path=/apps
       - hapi.fhir.tester.home.name="Local Tester"
-      - hapi.fhir.tester.home.server_address=http://35.193.0.173/laboratory/fhir
+      - hapi.fhir.tester.home.server_address=https://sandbox.hl7europe.eu/laboratory/fhir
       - hapi.fhir.tester.home.fhir_version=R4
     volumes:
 #      - ./default:/static
       - ./web:/custom
       - ./apps:/apps
+    depends_on:
+        - db
+  
+  db:
+    image: postgres:latest
+#    image: postgres:13-alpine
+
+    restart: always
+    container_name: db_vizlab
+      #command: mydbcharacter-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci  --lower_case_table_names=1
+    volumes:
+    - ./data/db:/var/lib/postgresql/data
+#    - ./mariadbconf:/etc/mysql/conf.d
+    environment:
+      - POSTGRES_DB=hapi
+      - POSTGRES_ROOT_PASSWORD=admin
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+ #   ports:
+ #   - "5432:5432"

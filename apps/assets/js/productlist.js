@@ -246,7 +246,7 @@ for (var j = 0; j < data[i].entry.length; j++) {
       try {
         current_row.push(
           '<a target="_blank" href="./visualiser/index.html?url=' + baseurl + '/Bundle/' + bid + '">Viewer</a> <br>' +
-          '<a target="_blank" href="https://idmp-viewer.azurewebsites.net/display-product?url=' + baseurl + '/Bundle/' + bid + '">Ext. Viewer</a> <br> ');
+          '<a target="_blank" href=" https://vhewer.com/view-report?url=' + baseurl + '/Bundle/' + bid + '">Ext. Viewer</a> <br> ');
       } catch (error) {
         current_row.push(error);
       }

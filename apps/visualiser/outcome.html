@@ -83,7 +83,11 @@
         $.ajax({
           url: postUrl,
           type: 'POST',
-          contentType: 'application/json',
+ xhrFields: {
+        withCredentials: false
+    },
+    crossDomain: true, // Ensure the request is treated as cross-origin
+          contentType: 'application/fhir+json',
           data: JSON.stringify(getResponse),
           complete: function (xhr, textStatus) {
             // Check the status code
@@ -97,6 +101,7 @@
             } else {
               // Handle other status codes or errors
               console.log("Error in POST Request: Status Code ", xhr.status);
+              console.log("status text",textStatus);
             }
           }
         });
