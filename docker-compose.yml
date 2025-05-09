@@ -107,3 +107,11 @@ services:
       - POSTGRES_PASSWORD=admin
  #   ports:
  #   - "5432:5432"
+  yafiu-gh:
+    image: jfcal/yafhiriguploader:latest
+    environment:
+      - TGZ_FILE_URL=http://hl7.eu/fhir/laboratory/0.1.1/package.tgz
+      - SERVER_URL=https://sandbox.hl7europe.eu/laboratory/fhir
+      - WAITTIME=120
+    volumes:
+      - ./fhir-outputs:/app/output
