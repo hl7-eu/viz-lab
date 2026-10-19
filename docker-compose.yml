@@ -33,13 +33,12 @@ services:
       - hapi.fhir.cr_enabled=true
 
 
-
       - spring.jpa.properties.hibernate.format_sql=false
       - spring.jpa.properties.hibernate.show_sql=false
       - spring.jpa.properties.hibernate.dialect=ca.uhn.fhir.jpa.model.dialect.HapiFhirPostgresDialect
       - spring.jpa.properties.hibernate.search.enabled=true
       - spring.jpa.properties.hibernate.search.backend.type=lucene
-#    - spring.jpa.properties.hibernate.search.backend.analysis.configurer=ca.uhn.fhir.jpa.search.HapiHSearchAnalysisConfigurers$$HapiLuceneAnalysisConfigurer
+      - spring.jpa.properties.hibernate.search.backend.analysis.configurer=ca.uhn.fhir.jpa.search.HapiHSearchAnalysisConfigurers$$HapiLuceneAnalysisConfigurer
       - spring.jpa.properties.hibernate.search.backend.directory.type=local-filesystem
       - spring.jpa.properties.hibernate.search.backend.directory.root=target/lucenefiles
       - spring.jpa.properties.hibernate.search.backend.lucene_version=lucene_current
@@ -83,15 +82,19 @@ services:
       - hapi.fhir.tester.home.name="Local Tester"
       - hapi.fhir.tester.home.server_address=https://sandbox.hl7europe.eu/laboratory/fhir
       - hapi.fhir.tester.home.fhir_version=R4
+      - spring.ai.mcp.server.name=FHIR MCP Server
+      - spring.ai.mcp.server.version=1.0.0
+      - spring.ai.mcp.server.enabled=true
+      - spring.ai.mcp.server.streamable-http.mcp-endpoint=/mcp/messages
     volumes:
 #      - ./default:/static
-      - ./web:/custom
-      - ./apps:/apps
+      - ./web:/custom/custom
+      - ./apps:/apps/apps
     depends_on:
         - db
   
   db:
-    image: postgres:latest
+    image: postgres:17-bookworm
 #    image: postgres:13-alpine
 
     restart: always
