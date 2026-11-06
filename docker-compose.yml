@@ -21,6 +21,7 @@ services:
       - spring.flywway.baselineOnMigrate=true 
 #      - server.servlet.context-path=
       - hapi.fhir.allow_multiple_delete=true
+      - hapi.fhir.delete_enabled=false
       - hapi.fhir.server_address=https://sandbox.hl7europe.eu/laboratory/fhir
       - hapi.fhir.reuse_cached_search_results_millis=10000
       - hapi.fhir.cors.allow_Credentials=true
